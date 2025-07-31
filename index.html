@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced 3D Morphing Sphere</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 20% 80%, #120a8f 0%, #000000 50%, #8b0000 100%);
+            overflow: hidden;
+            height: 100vh;
+            color: white;
+        }
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        .ui {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .ui:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .title {
+            top: 30px;
+            left: 30px;
+        }
+        .controls {
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 180px;
+        }
+        .left-controls {
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 200px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 300;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed, #12c2e9, #00d4aa);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+            margin-bottom: 8px;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .slider-label {
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b9d, #c471ed);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+        }
+        .stats {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.8;
+            }
+        }
+        .mode-indicator {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        @media (max-width: 768px) {
+            .ui {
+                padding: 15px;
+            }
+            .title, .left-controls {
+                top: 20px;
+                left: 20px;
+            }
+            .controls {
+                bottom: 20px;
+                right: 20px;
+                min-width: 160px;
+            }
+            .left-controls {
+                display: none;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .controls {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                min-width: auto;
+            }
+            .btn {
+                flex: 1;
+                min-width: 80px;
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+            .mode-indicator {
+                top: 10px;
+                right: 10px;
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div id="container">
+        <div class="ui title">
+            <h1>MORPHING SPHERE</h1>
+            <div class="subtitle">
+                Drag to rotate • Scroll to zoom<br>
+                Press SPACE for auto-rotate
+            </div>
+            <div class="stats" id="stats">
+                FPS: 60 | Vertices: 2048<br>
+                Shape: Sphere | Mode: Manual
+            </div>
+        </div>
+        
+        <div class="ui left-controls">
+            <div class="slider-container">
+                <div class="slider-label">Wave Intensity</div>
+                <input type="range" class="slider" id="waveSlider" min="0" max="100" value="50">
+            </div>
+            <div class="slider-container">
+                <div class="slider-label">Animation Speed</div>
+                <input type="range" class="slider" id="speedSlider" min="0" max="100" value="30">
+            </div>
+            <div class="slider-container">
+                <div class="slider-label">Complexity</div>
+                <input type="range" class="slider" id="complexitySlider" min="8" max="128" value="32">
+            </div>
+            <div class="slider-container">
+                <div class="slider-label">Size</div>
+                <input type="range" class="slider" id="sizeSlider" min="50" max="200" value="100">
+            </div>
+        </div>
+        
+        <div class="mode-indicator" id="modeIndicator">Manual Mode</div>
+        
+        <div class="ui controls">
+            <button class="btn" id="morph">Next Shape</button>
+            <button class="btn" id="colors">Change Colors</button>
+            <button class="btn" id="material">Material</button>
+            <button class="btn" id="lighting">Lighting</button>
+            <button class="btn" id="effects">Effects</button>
+            <button class="btn" id="reset">Reset</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, sphere, mouse = {x: 0, y: 0}, 
+            mouseDown = false, morphTarget = 0, currentMorph = 0,
+            colorScheme = 0, speedMode = 0, time = 0, autoRotate = false,
+            materialType = 0, lightingMode = 0, effectsMode = 0,
+            waveIntensity = 0.5, animationSpeed = 0.3, complexity = 32, 
+            sphereSize = 2, frameCount = 0, lastTime = 0, fps = 60;
+
+        const colors = [
+            [0xff6b9d, 0xc471ed, 0x12c2e9],
+            [0xff9a56, 0x6c5ce7, 0x74b9ff],
+            [0xa29bfe, 0xfd79a8, 0xfdcb6e],
+            [0x00b894, 0x00cec9, 0x6c5ce7],
+            [0xe17055, 0xd63031, 0x74b9ff],
+            [0x00d4aa, 0x5f27cd, 0xff3838],
+            [0xfeca57, 0x48dbfb, 0xff9ff3]
+        ];
+
+        const materialTypes = ['phong', 'standard', 'lambert', 'toon', 'wireframe'];
+        const shapeNames = ['Sphere', 'Octahedron', 'Tetrahedron', 'Icosahedron', 'Cone', 'Torus', 'Dodecahedron'];
+
+        const morphShapes = [
+            () => new THREE.SphereGeometry(sphereSize, complexity, complexity),
+            () => new THREE.OctahedronGeometry(sphereSize * 1.1, 2),
+            () => new THREE.TetrahedronGeometry(sphereSize * 1.25, 0),
+            () => new THREE.IcosahedronGeometry(sphereSize, 1),
+            () => new THREE.ConeGeometry(sphereSize, sphereSize * 2, Math.max(8, complexity / 4)),
+            () => new THREE.TorusGeometry(sphereSize * 0.8, sphereSize * 0.4, 16, complexity),
+            () => new THREE.DodecahedronGeometry(sphereSize, 0)
+        ];
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            createSphere();
+            setupLighting();
+            camera.position.z = 8;
+            
+            createParticles();
+            setupEvents();
+            animate();
+        }
+
+        function createSphere() {
+            if (sphere) {
+                scene.remove(sphere);
+                sphere.geometry.dispose();
+                sphere.material.dispose();
+            }
+
+            const geometry = morphShapes[morphTarget]();
+            const material = createMaterial();
+            
+            sphere = new THREE.Mesh(geometry, material);
+            sphere.castShadow = true;
+            sphere.receiveShadow = true;
+            scene.add(sphere);
+        }
+
+        function createMaterial() {
+            const baseColor = colors[colorScheme][0];
+            
+            switch(materialTypes[materialType]) {
+                case 'standard':
+                    return new THREE.MeshStandardMaterial({
+                        color: baseColor,
+                        metalness: 0.3,
+                        roughness: 0.4,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                case 'lambert':
+                    return new THREE.MeshLambertMaterial({
+                        color: baseColor,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                case 'toon':
+                    return new THREE.MeshToonMaterial({
+                        color: baseColor,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                case 'wireframe':
+                    return new THREE.MeshBasicMaterial({
+                        color: baseColor,
+                        wireframe: true,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                default:
+                    return new THREE.MeshPhongMaterial({
+                        color: baseColor,
+                        shininess: 100,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+            }
+        }
+
+        function setupLighting() {
+            scene.children = scene.children.filter(child => 
+                child.type !== 'DirectionalLight' && 
+                child.type !== 'PointLight' && 
+                child.type !== 'SpotLight' &&
+                child.type !== 'AmbientLight'
+            );
+
+            switch(lightingMode) {
+                case 1:
+                    const spotLight = new THREE.SpotLight(colors[colorScheme][1], 2, 15, Math.PI / 6);
+                    spotLight.position.set(8, 8, 8);
+                    spotLight.castShadow = true;
+                    scene.add(spotLight);
+                    
+                    const rimLight = new THREE.DirectionalLight(colors[colorScheme][2], 0.5);
+                    rimLight.position.set(-5, 0, -5);
+                    scene.add(rimLight);
+                    break;
+                    
+                case 2:
+                    const light1 = new THREE.PointLight(colors[colorScheme][0], 1, 12);
+                    light1.position.set(4, 4, 4);
+                    scene.add(light1);
+                    
+                    const light2 = new THREE.PointLight(colors[colorScheme][1], 1, 12);
+                    light2.position.set(-4, -4, 4);
+                    scene.add(light2);
+                    
+                    const light3 = new THREE.PointLight(colors[colorScheme][2], 1, 12);
+                    light3.position.set(0, 4, -4);
+                    scene.add(light3);
+                    break;
+                    
+                default: 
+                    const dirLight = new THREE.DirectionalLight(colors[colorScheme][1], 1);
+                    dirLight.position.set(5, 5, 5);
+                    dirLight.castShadow = true;
+                    scene.add(dirLight);
+
+                    const pointLight = new THREE.PointLight(colors[colorScheme][2], 0.8, 10);
+                    pointLight.position.set(-5, -5, 5);
+                    scene.add(pointLight);
+            }
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+        }
+
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function updateStats() {
+            const currentTime = performance.now();
+            frameCount++;
+            
+            if (currentTime >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+
+            const vertices = sphere.geometry.attributes.position.count;
+            const shapeName = shapeNames[morphTarget] || 'Custom';
+            const mode = autoRotate ? 'Auto-Rotate' : 'Manual';
+            
+            document.getElementById('stats').innerHTML = 
+                `FPS: ${fps} | Vertices: ${vertices}<br>Shape: ${shapeName} | Mode: ${mode}`;
+            
+            document.getElementById('modeIndicator').textContent = 
+                `${mode} Mode`;
+        }
+
+        function setupEvents() {
+            renderer.domElement.addEventListener('mousedown', e => {
+                mouseDown = true;
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+
+            renderer.domElement.addEventListener('mousemove', e => {
+                if (!mouseDown || autoRotate) return;
+                const deltaX = e.clientX - mouse.x;
+                const deltaY = e.clientY - mouse.y;
+                sphere.rotation.y += deltaX * 0.01;
+                sphere.rotation.x += deltaY * 0.01;
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => mouseDown = false);
+            
+            renderer.domElement.addEventListener('wheel', e => {
+                camera.position.z += e.deltaY * 0.01;
+                camera.position.z = Math.max(3, Math.min(20, camera.position.z));
+            });
+
+            renderer.domElement.addEventListener('touchstart', e => {
+                if (e.touches.length === 1) {
+                    mouseDown = true;
+                    mouse.x = e.touches[0].clientX;
+                    mouse.y = e.touches[0].clientY;
+                }
+            });
+
+            renderer.domElement.addEventListener('touchmove', e => {
+                if (e.touches.length === 1 && mouseDown && !autoRotate) {
+                    const deltaX = e.touches[0].clientX - mouse.x;
+                    const deltaY = e.touches[0].clientY - mouse.y;
+                    sphere.rotation.y += deltaX * 0.01;
+                    sphere.rotation.x += deltaY * 0.01;
+                    mouse.x = e.touches[0].clientX;
+                    mouse.y = e.touches[0].clientY;
+                }
+            });
+
+            renderer.domElement.addEventListener('touchend', () => mouseDown = false);
+
+            document.addEventListener('keydown', e => {
+                switch(e.code) {
+                    case 'Space':
+                        e.preventDefault();
+                        autoRotate = !autoRotate;
+                        break;
+                    case 'KeyR':
+                        resetSphere();
+                        break;
+                    case 'KeyM':
+                        morphShape();
+                        break;
+                    case 'KeyC':
+                        changeColors();
+                        break;
+                }
+            });
+
+            document.getElementById('waveSlider').addEventListener('input', e => {
+                waveIntensity = e.target.value / 100;
+            });
+
+            document.getElementById('speedSlider').addEventListener('input', e => {
+                animationSpeed = e.target.value / 100;
+            });
+
+            document.getElementById('complexitySlider').addEventListener('input', e => {
+                complexity = parseInt(e.target.value);
+                createSphere();
+            });
+
+            document.getElementById('sizeSlider').addEventListener('input', e => {
+                sphereSize = (e.target.value / 100) * 2;
+                createSphere();
+            });
+
+            // Button events
+            document.getElementById('morph').addEventListener('click', morphShape);
+            document.getElementById('colors').addEventListener('click', changeColors);
+            document.getElementById('material').addEventListener('click', changeMaterial);
+            document.getElementById('lighting').addEventListener('click', changeLighting);
+            document.getElementById('effects').addEventListener('click', toggleEffects);
+            document.getElementById('reset').addEventListener('click', resetSphere);
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function morphShape() {
+            morphTarget = (morphTarget + 1) % morphShapes.length;
+            createSphere();
+        }
+
+        function changeColors() {
+            colorScheme = (colorScheme + 1) % colors.length;
+            sphere.material.color.setHex(colors[colorScheme][0]);
+            setupLighting();
+        }
+
+        function changeMaterial() {
+            materialType = (materialType + 1) % materialTypes.length;
+            createSphere();
+        }
+
+        function changeLighting() {
+            lightingMode = (lightingMode + 1) % 3;
+            setupLighting();
+        }
+
+        function toggleEffects() {
+            effectsMode = (effectsMode + 1) % 3;
+        }
+
+        function resetSphere() {
+            morphTarget = 0;
+            colorScheme = 0;
+            materialType = 0;
+            lightingMode = 0;
+            effectsMode = 0;
+            autoRotate = false;
+            waveIntensity = 0.5;
+            animationSpeed = 0.3;
+            complexity = 32;
+            sphereSize = 2;
+            camera.position.set(0, 0, 8);
+            
+            document.getElementById('waveSlider').value = 50;
+            document.getElementById('speedSlider').value = 30;
+            document.getElementById('complexitySlider').value = 32;
+            document.getElementById('sizeSlider').value = 100;
+            
+            createSphere();
+            setupLighting();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01 * animationSpeed;
+
+            if (autoRotate) {
+                sphere.rotation.x += 0.005;
+                sphere.rotation.y += 0.007;
+            }
+
+            sphere.position.y = Math.sin(time * 2) * 0.3;
+            sphere.position.x = Math.cos(time * 1.4) * 0.2;
+            sphere.position.z = Math.sin(time * 0.8) * 0.1;
+
+            if (effectsMode > 0 && sphere.geometry.attributes.position) {
+                const vertices = sphere.geometry.attributes.position.array;
+                const originalVertices = sphere.geometry.attributes.position.array.slice();
+                
+                for (let i = 0; i < vertices.length; i += 3) {
+                    const x = originalVertices[i];
+                    const y = originalVertices[i + 1];
+                    const z = originalVertices[i + 2];
+                    const distance = Math.sqrt(x * x + y * y + z * z);
+                    
+                    let wave;
+                    switch(effectsMode) {
+                        case 1: 
+                            wave = Math.sin(distance * 3 + time * 4) * waveIntensity * 0.2;
+                            break;
+                        case 2: 
+                            wave = Math.sin(time * 5) * waveIntensity * 0.15;
+                            break;
+                        default:
+                            wave = 0;
+                    }
+                    
+                    vertices[i] = x + wave * (x / distance);
+                    vertices[i + 1] = y + wave * (y / distance);
+                    vertices[i + 2] = z + wave * (z / distance);
+                }
+                sphere.geometry.attributes.position.needsUpdate = true;
+            }
+
+            scene.children.forEach(child => {
+                if (child.type === 'PointLight') {
+                    child.position.x = Math.sin(time + child.position.y) * 3;
+                    child.position.z = Math.cos(time + child.position.x) * 3;
+                }
+            });
+
+            updateStats();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
