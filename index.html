@@ -3,675 +3,1097 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced 3D Morphing Sphere</title>
+    <title>3D Universe - Interactive Experiences</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: radial-gradient(circle at 20% 80%, #120a8f 0%, #000000 50%, #8b0000 100%);
-            overflow: hidden;
-            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
             color: white;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
-        #container {
+
+        .hero {
             position: relative;
-            width: 100vw;
             height: 100vh;
-        }
-        .ui {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 20px;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-        .ui:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-        .title {
-            top: 30px;
-            left: 30px;
-        }
-        .controls {
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            min-width: 180px;
-        }
-        .left-controls {
-            top: 50%;
-            left: 30px;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 200px;
-        }
-        h1 {
-            font-size: 32px;
-            font-weight: 300;
-            background: linear-gradient(45deg, #ff6b9d, #c471ed, #12c2e9, #00d4aa);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradientShift 4s ease-in-out infinite;
-            margin-bottom: 8px;
-        }
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        .subtitle {
-            font-size: 14px;
-            opacity: 0.7;
-            line-height: 1.4;
-        }
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 12px 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
-            position: relative;
             overflow: hidden;
-        }
-        .btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-        .btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-        .btn:hover::before {
-            left: 100%;
-        }
-        .slider-container {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            align-items: center;
+            justify-content: center;
         }
-        .slider-label {
-            font-size: 12px;
-            opacity: 0.8;
-            font-weight: 500;
-        }
-        .slider {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.2);
-            outline: none;
-            cursor: pointer;
-            appearance: none;
-        }
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff6b9d, #c471ed);
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4);
-            transition: all 0.3s ease;
-        }
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
-        }
-        .stats {
-            font-size: 11px;
-            opacity: 0.6;
-            margin-top: 10px;
-            line-height: 1.5;
-        }
-        .particles {
+
+        .hero-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            background: radial-gradient(circle at 20% 80%, #120a8f 0%, #000000 50%, #8b0000 100%);
             z-index: 1;
         }
-        .particle {
+
+        #canvas-container {
             position: absolute;
-            width: 3px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: float 6s infinite ease-in-out;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
         }
-        @keyframes float {
-            0%, 100% { 
-                transform: translateY(0px) rotate(0deg);
-                opacity: 0;
-            }
-            10%, 90% {
-                opacity: 1;
-            }
-            50% { 
-                transform: translateY(-100vh) rotate(360deg);
-                opacity: 0.8;
-            }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 20px;
         }
-        .mode-indicator {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 15px;
-            border-radius: 25px;
-            font-size: 12px;
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 100;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed, #12c2e9, #00f260);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            opacity: 0.8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            animation: fadeInUp 1.5s ease-out 0.3s both;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 1.5s ease-out 0.6s both;
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
         }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .cta-btn.secondary {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sphere-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        .section {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-content {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease 0.2s;
+        }
+
+        .section-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .gallery-item {
+            position: relative;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .gallery-item.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 20px;
+            color: white;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            transform: translateY(-100%);
+            transition: all 0.3s ease;
+        }
+
+        .nav.visible {
+            transform: translateY(0);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+            color: #667eea;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-arrow {
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-left: none;
+            border-top: none;
+            transform: rotate(45deg);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
         @media (max-width: 768px) {
-            .ui {
-                padding: 15px;
+            .hero-title {
+                letter-spacing: 1px;
             }
-            .title, .left-controls {
-                top: 20px;
-                left: 20px;
+            
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
             }
-            .controls {
+            
+            .cta-btn {
+                width: 200px;
+            }
+            
+            .sphere-controls {
                 bottom: 20px;
                 right: 20px;
-                min-width: 160px;
-            }
-            .left-controls {
-                display: none;
-            }
-            h1 {
-                font-size: 26px;
-            }
-            .btn {
-                padding: 10px 16px;
-                font-size: 12px;
-            }
-        }
-        @media (max-width: 480px) {
-            .controls {
-                bottom: 10px;
-                right: 10px;
-                left: 10px;
                 flex-direction: row;
                 flex-wrap: wrap;
-                justify-content: center;
-                min-width: auto;
+                gap: 8px;
             }
-            .btn {
-                flex: 1;
-                min-width: 80px;
-                padding: 8px 12px;
+            
+            .control-btn {
+                padding: 8px 15px;
                 font-size: 11px;
             }
-            .mode-indicator {
-                top: 10px;
-                right: 10px;
-                padding: 6px 10px;
-                font-size: 10px;
+            
+            .section {
+                padding: 60px 20px;
+            }
+            
+            .features-grid,
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .gallery-item {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .cta-btn {
+                width: 180px;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .sphere-controls {
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .contact-form {
+                padding: 0 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
-    <div id="container">
-        <div class="ui title">
-            <h1>MORPHING SPHERE</h1>
-            <div class="subtitle">
-                Drag to rotate • Scroll to zoom<br>
-                Press SPACE for auto-rotate
-            </div>
-            <div class="stats" id="stats">
-                FPS: 60 | Vertices: 2048<br>
-                Shape: Sphere | Mode: Manual
+    <nav class="nav" id="navbar">
+        <div class="nav-content">
+            <div class="nav-logo">3D Universe</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-bg"></div>
+        <div id="canvas-container"></div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">3D UNIVERSE</h1>
+            <p class="hero-subtitle">Experience the future of interactive web design with stunning 3D animations, morphing geometries, and immersive digital art.</p>
+            <div class="hero-cta">
+                <a href="#gallery" class="cta-btn">Explore Gallery</a>
+                <a href="#contact" class="cta-btn secondary">Get Started</a>
             </div>
         </div>
-        
-        <div class="ui left-controls">
-            <div class="slider-container">
-                <div class="slider-label">Wave Intensity</div>
-                <input type="range" class="slider" id="waveSlider" min="0" max="100" value="50">
-            </div>
-            <div class="slider-container">
-                <div class="slider-label">Animation Speed</div>
-                <input type="range" class="slider" id="speedSlider" min="0" max="100" value="30">
-            </div>
-            <div class="slider-container">
-                <div class="slider-label">Complexity</div>
-                <input type="range" class="slider" id="complexitySlider" min="8" max="128" value="32">
-            </div>
-            <div class="slider-container">
-                <div class="slider-label">Size</div>
-                <input type="range" class="slider" id="sizeSlider" min="50" max="200" value="100">
+
+        <div class="sphere-controls">
+            <button class="control-btn" id="morphBtn">Morph</button>
+            <button class="control-btn" id="colorBtn">Colors</button>
+            <button class="control-btn" id="speedBtn">Speed</button>
+            <button class="control-btn" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <section id="about" class="section">
+        <h2 class="section-title">About 3D Universe</h2>
+        <div class="section-content">
+            <p style="text-align: center; font-size: 1.2rem; line-height: 1.8; opacity: 0.9; margin-bottom: 3rem;">
+                We create cutting-edge 3D web experiences that push the boundaries of what's possible in the browser. 
+                Our interactive animations combine mathematical precision with artistic vision to deliver unforgettable digital experiences.
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Interactive Design</h3>
+                    <p>Engage users with responsive 3D elements that react to mouse movements, touch gestures, and user input in real-time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>High Performance</h3>
+                    <p>Optimized WebGL rendering ensures smooth 60fps animations across all devices, from mobile phones to high-end desktops.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Creative Visuals</h3>
+                    <p>Stunning visual effects, dynamic color schemes, and morphing geometries create captivating digital art experiences.</p>
+                </div>
             </div>
         </div>
-        
-        <div class="mode-indicator" id="modeIndicator">Manual Mode</div>
-        
-        <div class="ui controls">
-            <button class="btn" id="morph">Next Shape</button>
-            <button class="btn" id="colors">Change Colors</button>
-            <button class="btn" id="material">Material</button>
-            <button class="btn" id="lighting">Lighting</button>
-            <button class="btn" id="effects">Effects</button>
-            <button class="btn" id="reset">Reset</button>
+    </section>
+
+    <section id="gallery" class="section">
+        <h2 class="section-title">3D Experiments Gallery</h2>
+        <div class="section-content">
+            <div class="gallery-grid">
+                <div class="gallery-item" data-experiment="morphing">
+                    <canvas class="gallery-canvas" id="gallery1"></canvas>
+                    <div class="gallery-overlay">
+                        <h3>Morphing Sphere</h3>
+                        <p>Dynamic geometry transformation with wave effects</p>
+                    </div>
+                </div>
+                <div class="gallery-item" data-experiment="cubes">
+                    <canvas class="gallery-canvas" id="gallery2"></canvas>
+                    <div class="gallery-overlay">
+                        <h3>Rotating Cubes</h3>
+                        <p>Synchronized cube matrix with depth illusion</p>
+                    </div>
+                </div>
+                <div class="gallery-item" data-experiment="particles">
+                    <canvas class="gallery-canvas" id="gallery3"></canvas>
+                    <div class="gallery-overlay">
+                        <h3>Particle Explosion</h3>
+                        <p>Dynamic particle system with physics simulation</p>
+                    </div>
+                </div>
+                <div class="gallery-item" data-experiment="spiral">
+                    <canvas class="gallery-canvas" id="gallery4"></canvas>
+                    <div class="gallery-overlay">
+                        <h3>DNA Spiral</h3>
+                        <p>Animated double helix with color transitions</p>
+                    </div>
+                </div>
+                <div class="gallery-item" data-experiment="fractal">
+                    <canvas class="gallery-canvas" id="gallery5"></canvas>
+                    <div class="gallery-overlay">
+                        <h3>Fractal Tree</h3>
+                        <p>Recursive branch generation with growth animation</p>
+                    </div>
+                </div>
+                <div class="gallery-item" data-experiment="waves">
+                    <canvas class="gallery-canvas" id="gallery6"></canvas>
+                    <div class="gallery-overlay">
+                        <h3>Ocean Waves</h3>
+                        <p>Fluid simulation with realistic wave physics</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <section id="contact" class="section">
+        <h2 class="section-title">Get In Touch</h2>
+        <div class="section-content">
+            <p style="text-align: center; font-size: 1.1rem; margin-bottom: 3rem; opacity: 0.8;">
+                Ready to bring your ideas to life with stunning 3D web experiences? Let's collaborate and create something amazing together.
+            </p>
+            
+            <form class="contact-form">
+                <div class="form-group">
+                    <input type="text" class="form-input" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-input" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-input" placeholder="Project Type">
+                </div>
+                <div class="form-group">
+                    <textarea class="form-input" rows="5" placeholder="Tell us about your project..."></textarea>
+                </div>
+                <button type="submit" class="cta-btn" style="justify-self: center;">Send Message</button>
+            </form>
+        </div>
+    </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        let scene, camera, renderer, sphere, mouse = {x: 0, y: 0}, 
-            mouseDown = false, morphTarget = 0, currentMorph = 0,
-            colorScheme = 0, speedMode = 0, time = 0, autoRotate = false,
-            materialType = 0, lightingMode = 0, effectsMode = 0,
-            waveIntensity = 0.5, animationSpeed = 0.3, complexity = 32, 
-            sphereSize = 2, frameCount = 0, lastTime = 0, fps = 60;
+        let heroScene, heroCamera, heroRenderer, heroSphere, heroTime = 0;
+        let morphTarget = 0, colorScheme = 0, speedMode = 0;
+        const mouse = { x: 0, y: 0 };
 
         const colors = [
             [0xff6b9d, 0xc471ed, 0x12c2e9],
             [0xff9a56, 0x6c5ce7, 0x74b9ff],
             [0xa29bfe, 0xfd79a8, 0xfdcb6e],
             [0x00b894, 0x00cec9, 0x6c5ce7],
-            [0xe17055, 0xd63031, 0x74b9ff],
-            [0x00d4aa, 0x5f27cd, 0xff3838],
-            [0xfeca57, 0x48dbfb, 0xff9ff3]
+            [0xe17055, 0xd63031, 0x74b9ff]
         ];
-
-        const materialTypes = ['phong', 'standard', 'lambert', 'toon', 'wireframe'];
-        const shapeNames = ['Sphere', 'Octahedron', 'Tetrahedron', 'Icosahedron', 'Cone', 'Torus', 'Dodecahedron'];
 
         const morphShapes = [
-            () => new THREE.SphereGeometry(sphereSize, complexity, complexity),
-            () => new THREE.OctahedronGeometry(sphereSize * 1.1, 2),
-            () => new THREE.TetrahedronGeometry(sphereSize * 1.25, 0),
-            () => new THREE.IcosahedronGeometry(sphereSize, 1),
-            () => new THREE.ConeGeometry(sphereSize, sphereSize * 2, Math.max(8, complexity / 4)),
-            () => new THREE.TorusGeometry(sphereSize * 0.8, sphereSize * 0.4, 16, complexity),
-            () => new THREE.DodecahedronGeometry(sphereSize, 0)
+            () => new THREE.SphereGeometry(2.5, 64, 64),
+            () => new THREE.OctahedronGeometry(2.8, 3),
+            () => new THREE.IcosahedronGeometry(2.5, 2),
+            () => new THREE.TetrahedronGeometry(3, 2),
+            () => new THREE.TorusGeometry(2, 1, 16, 32),
+            () => new THREE.ConeGeometry(2.5, 4, 16)
         ];
 
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.getElementById('container').appendChild(renderer.domElement);
+        function initHeroScene() {
+            heroScene = new THREE.Scene();
+            heroCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            heroRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            heroRenderer.setSize(window.innerWidth, window.innerHeight);
+            heroRenderer.shadowMap.enabled = true;
+            document.getElementById('canvas-container').appendChild(heroRenderer.domElement);
 
-            createSphere();
-            setupLighting();
-            camera.position.z = 8;
+            const geometry = morphShapes[0]();
+            const material = new THREE.MeshPhongMaterial({
+                color: colors[colorScheme][0],
+                shininess: 100,
+                transparent: true,
+                opacity: 0.85
+            });
+
+            heroSphere = new THREE.Mesh(geometry, material);
+            heroSphere.castShadow = true;
+            heroScene.add(heroSphere);
+
+            const light1 = new THREE.DirectionalLight(colors[colorScheme][1], 1.2);
+            light1.position.set(5, 5, 5);
+            light1.castShadow = true;
+            heroScene.add(light1);
+
+            const light2 = new THREE.PointLight(colors[colorScheme][2], 0.8, 15);
+            light2.position.set(-5, -5, 5);
+            heroScene.add(light2);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            heroScene.add(ambientLight);
+
+            heroCamera.position.z = 8;
+            setupHeroEvents();
+        }
+
+        function setupHeroEvents() {
+            document.addEventListener('mousemove', (e) => {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            document.getElementById('morphBtn').addEventListener('click', () => {
+                morphTarget = (morphTarget + 1) % morphShapes.length;
+                const newGeometry = morphShapes[morphTarget]();
+                heroSphere.geometry.dispose();
+                heroSphere.geometry = newGeometry;
+            });
+
+            document.getElementById('colorBtn').addEventListener('click', () => {
+                colorScheme = (colorScheme + 1) % colors.length;
+                heroSphere.material.color.setHex(colors[colorScheme][0]);
+                heroScene.children.forEach(child => {
+                    if (child.type === 'DirectionalLight') child.color.setHex(colors[colorScheme][1]);
+                    if (child.type === 'PointLight') child.color.setHex(colors[colorScheme][2]);
+                });
+            });
+
+            document.getElementById('speedBtn').addEventListener('click', () => {
+                speedMode = (speedMode + 1) % 3;
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                heroCamera.position.set(0, 0, 8);
+                heroSphere.rotation.set(0, 0, 0);
+            });
+
+            window.addEventListener('resize', () => {
+                heroCamera.aspect = window.innerWidth / window.innerHeight;
+                heroCamera.updateProjectionMatrix();
+                heroRenderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function animateHero() {
+            requestAnimationFrame(animateHero);
+            heroTime += 0.01;
+
+            const speeds = [0.005, 0.02, 0.05];
+            const currentSpeed = speeds[speedMode];
             
-            createParticles();
-            setupEvents();
+            heroSphere.rotation.x += currentSpeed;
+            heroSphere.rotation.y += currentSpeed * 0.7;
+            
+            heroSphere.position.x = mouse.x * 0.5;
+            heroSphere.position.y = mouse.y * 0.3;
+            
+            heroSphere.position.y += Math.sin(heroTime * 2) * 0.2;
+
+            if (heroSphere.geometry.attributes.position) {
+                const vertices = heroSphere.geometry.attributes.position.array;
+                for (let i = 0; i < vertices.length; i += 3) {
+                    const x = vertices[i];
+                    const y = vertices[i + 1];
+                    const z = vertices[i + 2];
+                    const distance = Math.sqrt(x * x + y * y + z * z);
+                    const wave = Math.sin(distance * 2 + heroTime * 3) * 0.05;
+                    vertices[i] += wave * (x / distance);
+                    vertices[i + 1] += wave * (y / distance);
+                    vertices[i + 2] += wave * (z / distance);
+                }
+                heroSphere.geometry.attributes.position.needsUpdate = true;
+            }
+
+            heroRenderer.render(heroScene, heroCamera);
+        }
+
+        function initGalleryItems() {
+            initMorphingSphere();
+            initRotatingCubes();
+            initParticleExplosion();
+            initDNASpiral();
+            initFractalTree();
+            initOceanWaves();
+        }
+
+        function initMorphingSphere() {
+            const canvas = document.getElementById('gallery1');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+            const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ color: 0xff6b9d, shininess: 100 });
+            const sphere = new THREE.Mesh(geometry, material);
+            scene.add(sphere);
+
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040, 0.5));
+
+            camera.position.z = 4;
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.02;
+                sphere.rotation.x = time;
+                sphere.rotation.y = time * 0.7;
+                
+                const positions = sphere.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    const vertex = new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2]);
+                    const distance = vertex.length();
+                    const wave = Math.sin(distance * 3 + time * 4) * 0.1;
+                    vertex.normalize().multiplyScalar(1.5 + wave);
+                    positions[i] = vertex.x;
+                    positions[i + 1] = vertex.y;
+                    positions[i + 2] = vertex.z;
+                }
+                sphere.geometry.attributes.position.needsUpdate = true;
+                
+                renderer.render(scene, camera);
+            }
             animate();
         }
 
-        function createSphere() {
-            if (sphere) {
-                scene.remove(sphere);
-                sphere.geometry.dispose();
-                sphere.material.dispose();
-            }
+        function initRotatingCubes() {
+            const canvas = document.getElementById('gallery2');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
-            const geometry = morphShapes[morphTarget]();
-            const material = createMaterial();
+            const cubes = [];
+            const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
             
-            sphere = new THREE.Mesh(geometry, material);
-            sphere.castShadow = true;
-            sphere.receiveShadow = true;
-            scene.add(sphere);
-        }
-
-        function createMaterial() {
-            const baseColor = colors[colorScheme][0];
-            
-            switch(materialTypes[materialType]) {
-                case 'standard':
-                    return new THREE.MeshStandardMaterial({
-                        color: baseColor,
-                        metalness: 0.3,
-                        roughness: 0.4,
-                        transparent: true,
-                        opacity: 0.9
+            for (let x = -2; x <= 2; x++) {
+                for (let y = -2; y <= 2; y++) {
+                    const material = new THREE.MeshPhongMaterial({ 
+                        color: new THREE.Color().setHSL((x + y + 4) / 8, 0.8, 0.6) 
                     });
-                case 'lambert':
-                    return new THREE.MeshLambertMaterial({
-                        color: baseColor,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-                case 'toon':
-                    return new THREE.MeshToonMaterial({
-                        color: baseColor,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-                case 'wireframe':
-                    return new THREE.MeshBasicMaterial({
-                        color: baseColor,
-                        wireframe: true,
-                        transparent: true,
-                        opacity: 0.8
-                    });
-                default:
-                    return new THREE.MeshPhongMaterial({
-                        color: baseColor,
-                        shininess: 100,
-                        transparent: true,
-                        opacity: 0.9
-                    });
-            }
-        }
-
-        function setupLighting() {
-            scene.children = scene.children.filter(child => 
-                child.type !== 'DirectionalLight' && 
-                child.type !== 'PointLight' && 
-                child.type !== 'SpotLight' &&
-                child.type !== 'AmbientLight'
-            );
-
-            switch(lightingMode) {
-                case 1:
-                    const spotLight = new THREE.SpotLight(colors[colorScheme][1], 2, 15, Math.PI / 6);
-                    spotLight.position.set(8, 8, 8);
-                    spotLight.castShadow = true;
-                    scene.add(spotLight);
-                    
-                    const rimLight = new THREE.DirectionalLight(colors[colorScheme][2], 0.5);
-                    rimLight.position.set(-5, 0, -5);
-                    scene.add(rimLight);
-                    break;
-                    
-                case 2:
-                    const light1 = new THREE.PointLight(colors[colorScheme][0], 1, 12);
-                    light1.position.set(4, 4, 4);
-                    scene.add(light1);
-                    
-                    const light2 = new THREE.PointLight(colors[colorScheme][1], 1, 12);
-                    light2.position.set(-4, -4, 4);
-                    scene.add(light2);
-                    
-                    const light3 = new THREE.PointLight(colors[colorScheme][2], 1, 12);
-                    light3.position.set(0, 4, -4);
-                    scene.add(light3);
-                    break;
-                    
-                default: 
-                    const dirLight = new THREE.DirectionalLight(colors[colorScheme][1], 1);
-                    dirLight.position.set(5, 5, 5);
-                    dirLight.castShadow = true;
-                    scene.add(dirLight);
-
-                    const pointLight = new THREE.PointLight(colors[colorScheme][2], 0.8, 10);
-                    pointLight.position.set(-5, -5, 5);
-                    scene.add(pointLight);
-            }
-
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
-            scene.add(ambientLight);
-        }
-
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (6 + Math.random() * 4) + 's';
-                particlesContainer.appendChild(particle);
-            }
-        }
-
-        function updateStats() {
-            const currentTime = performance.now();
-            frameCount++;
-            
-            if (currentTime >= lastTime + 1000) {
-                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-                frameCount = 0;
-                lastTime = currentTime;
-            }
-
-            const vertices = sphere.geometry.attributes.position.count;
-            const shapeName = shapeNames[morphTarget] || 'Custom';
-            const mode = autoRotate ? 'Auto-Rotate' : 'Manual';
-            
-            document.getElementById('stats').innerHTML = 
-                `FPS: ${fps} | Vertices: ${vertices}<br>Shape: ${shapeName} | Mode: ${mode}`;
-            
-            document.getElementById('modeIndicator').textContent = 
-                `${mode} Mode`;
-        }
-
-        function setupEvents() {
-            renderer.domElement.addEventListener('mousedown', e => {
-                mouseDown = true;
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            });
-
-            renderer.domElement.addEventListener('mousemove', e => {
-                if (!mouseDown || autoRotate) return;
-                const deltaX = e.clientX - mouse.x;
-                const deltaY = e.clientY - mouse.y;
-                sphere.rotation.y += deltaX * 0.01;
-                sphere.rotation.x += deltaY * 0.01;
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            });
-
-            renderer.domElement.addEventListener('mouseup', () => mouseDown = false);
-            
-            renderer.domElement.addEventListener('wheel', e => {
-                camera.position.z += e.deltaY * 0.01;
-                camera.position.z = Math.max(3, Math.min(20, camera.position.z));
-            });
-
-            renderer.domElement.addEventListener('touchstart', e => {
-                if (e.touches.length === 1) {
-                    mouseDown = true;
-                    mouse.x = e.touches[0].clientX;
-                    mouse.y = e.touches[0].clientY;
+                    const cube = new THREE.Mesh(geometry, material);
+                    cube.position.set(x * 0.8, y * 0.8, 0);
+                    cubes.push(cube);
+                    scene.add(cube);
                 }
-            });
-
-            renderer.domElement.addEventListener('touchmove', e => {
-                if (e.touches.length === 1 && mouseDown && !autoRotate) {
-                    const deltaX = e.touches[0].clientX - mouse.x;
-                    const deltaY = e.touches[0].clientY - mouse.y;
-                    sphere.rotation.y += deltaX * 0.01;
-                    sphere.rotation.x += deltaY * 0.01;
-                    mouse.x = e.touches[0].clientX;
-                    mouse.y = e.touches[0].clientY;
-                }
-            });
-
-            renderer.domElement.addEventListener('touchend', () => mouseDown = false);
-
-            document.addEventListener('keydown', e => {
-                switch(e.code) {
-                    case 'Space':
-                        e.preventDefault();
-                        autoRotate = !autoRotate;
-                        break;
-                    case 'KeyR':
-                        resetSphere();
-                        break;
-                    case 'KeyM':
-                        morphShape();
-                        break;
-                    case 'KeyC':
-                        changeColors();
-                        break;
-                }
-            });
-
-            document.getElementById('waveSlider').addEventListener('input', e => {
-                waveIntensity = e.target.value / 100;
-            });
-
-            document.getElementById('speedSlider').addEventListener('input', e => {
-                animationSpeed = e.target.value / 100;
-            });
-
-            document.getElementById('complexitySlider').addEventListener('input', e => {
-                complexity = parseInt(e.target.value);
-                createSphere();
-            });
-
-            document.getElementById('sizeSlider').addEventListener('input', e => {
-                sphereSize = (e.target.value / 100) * 2;
-                createSphere();
-            });
-
-            // Button events
-            document.getElementById('morph').addEventListener('click', morphShape);
-            document.getElementById('colors').addEventListener('click', changeColors);
-            document.getElementById('material').addEventListener('click', changeMaterial);
-            document.getElementById('lighting').addEventListener('click', changeLighting);
-            document.getElementById('effects').addEventListener('click', toggleEffects);
-            document.getElementById('reset').addEventListener('click', resetSphere);
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-
-        function morphShape() {
-            morphTarget = (morphTarget + 1) % morphShapes.length;
-            createSphere();
-        }
-
-        function changeColors() {
-            colorScheme = (colorScheme + 1) % colors.length;
-            sphere.material.color.setHex(colors[colorScheme][0]);
-            setupLighting();
-        }
-
-        function changeMaterial() {
-            materialType = (materialType + 1) % materialTypes.length;
-            createSphere();
-        }
-
-        function changeLighting() {
-            lightingMode = (lightingMode + 1) % 3;
-            setupLighting();
-        }
-
-        function toggleEffects() {
-            effectsMode = (effectsMode + 1) % 3;
-        }
-
-        function resetSphere() {
-            morphTarget = 0;
-            colorScheme = 0;
-            materialType = 0;
-            lightingMode = 0;
-            effectsMode = 0;
-            autoRotate = false;
-            waveIntensity = 0.5;
-            animationSpeed = 0.3;
-            complexity = 32;
-            sphereSize = 2;
-            camera.position.set(0, 0, 8);
-            
-            document.getElementById('waveSlider').value = 50;
-            document.getElementById('speedSlider').value = 30;
-            document.getElementById('complexitySlider').value = 32;
-            document.getElementById('sizeSlider').value = 100;
-            
-            createSphere();
-            setupLighting();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.01 * animationSpeed;
-
-            if (autoRotate) {
-                sphere.rotation.x += 0.005;
-                sphere.rotation.y += 0.007;
             }
 
-            sphere.position.y = Math.sin(time * 2) * 0.3;
-            sphere.position.x = Math.cos(time * 1.4) * 0.2;
-            sphere.position.z = Math.sin(time * 0.8) * 0.1;
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040, 0.5));
 
-            if (effectsMode > 0 && sphere.geometry.attributes.position) {
-                const vertices = sphere.geometry.attributes.position.array;
-                const originalVertices = sphere.geometry.attributes.position.array.slice();
+            camera.position.z = 6;
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.02;
+                cubes.forEach((cube, i) => {
+                    cube.rotation.x = time + i * 0.1;
+                    cube.rotation.y = time * 0.7 + i * 0.1;
+                    cube.position.z = Math.sin(time + i * 0.5) * 0.5;
+                });
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function initParticleExplosion() {
+            const canvas = document.getElementById('gallery3');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+            const particleCount = 500;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = [];
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = 0;
+                positions[i * 3 + 1] = 0;
+                positions[i * 3 + 2] = 0;
                 
-                for (let i = 0; i < vertices.length; i += 3) {
-                    const x = originalVertices[i];
-                    const y = originalVertices[i + 1];
-                    const z = originalVertices[i + 2];
-                    const distance = Math.sqrt(x * x + y * y + z * z);
-                    
-                    let wave;
-                    switch(effectsMode) {
-                        case 1: 
-                            wave = Math.sin(distance * 3 + time * 4) * waveIntensity * 0.2;
-                            break;
-                        case 2: 
-                            wave = Math.sin(time * 5) * waveIntensity * 0.15;
-                            break;
-                        default:
-                            wave = 0;
-                    }
-                    
-                    vertices[i] = x + wave * (x / distance);
-                    vertices[i + 1] = y + wave * (y / distance);
-                    vertices[i + 2] = z + wave * (z / distance);
-                }
-                sphere.geometry.attributes.position.needsUpdate = true;
+                velocities.push({
+                    x: (Math.random() - 0.5) * 0.1,
+                    y: (Math.random() - 0.5) * 0.1,
+                    z: (Math.random() - 0.5) * 0.1
+                });
+
+                const color = new THREE.Color().setHSL(Math.random(), 0.8, 0.6);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
             }
 
-            scene.children.forEach(child => {
-                if (child.type === 'PointLight') {
-                    child.position.x = Math.sin(time + child.position.y) * 3;
-                    child.position.z = Math.cos(time + child.position.x) * 3;
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({ 
+                size: 0.05, 
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            camera.position.z = 5;
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.02;
+                
+                const positions = particles.geometry.attributes.position.array;
+                for (let i = 0; i < particleCount; i++) {
+                    positions[i * 3] += velocities[i].x;
+                    positions[i * 3 + 1] += velocities[i].y;
+                    positions[i * 3 + 2] += velocities[i].z;
+                    
+                    if (Math.abs(positions[i * 3]) > 3 || Math.abs(positions[i * 3 + 1]) > 3) {
+                        positions[i * 3] = 0;
+                        positions[i * 3 + 1] = 0;
+                        positions[i * 3 + 2] = 0;
+                    }
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+                particles.rotation.y = time * 0.5;
+                
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function initDNASpiral() {
+            const canvas = document.getElementById('gallery4');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+            const helixGroup = new THREE.Group();
+            const sphereGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            
+            for (let i = 0; i < 100; i++) {
+                const t = i / 10;
+                
+                const sphere1 = new THREE.Mesh(sphereGeometry, 
+                    new THREE.MeshPhongMaterial({ color: 0xff6b9d }));
+                sphere1.position.set(
+                    Math.cos(t) * 1.5,
+                    t * 0.2 - 2,
+                    Math.sin(t) * 1.5
+                );
+                
+                const sphere2 = new THREE.Mesh(sphereGeometry, 
+                    new THREE.MeshPhongMaterial({ color: 0x12c2e9 }));
+                sphere2.position.set(
+                    Math.cos(t + Math.PI) * 1.5,
+                    t * 0.2 - 2,
+                    Math.sin(t + Math.PI) * 1.5
+                );
+                
+                helixGroup.add(sphere1, sphere2);
+            }
+
+            scene.add(helixGroup);
+
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040, 0.5));
+
+            camera.position.set(0, 0, 6);
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.02;
+                helixGroup.rotation.y = time;
+                helixGroup.position.y = Math.sin(time) * 0.5;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function initFractalTree() {
+            const canvas = document.getElementById('gallery5');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+            const treeGroup = new THREE.Group();
+            
+            function createBranch(length, depth, position, direction) {
+                if (depth <= 0) return;
+                
+                const geometry = new THREE.CylinderGeometry(
+                    0.02 * depth, 0.02 * depth, length, 8
+                );
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: new THREE.Color().setHSL(0.3 - depth * 0.1, 0.8, 0.4)
+                });
+                const branch = new THREE.Mesh(geometry, material);
+                
+                branch.position.copy(position);
+                branch.position.add(direction.clone().multiplyScalar(length / 2));
+                branch.lookAt(position.clone().add(direction));
+                branch.rotateX(Math.PI / 2);
+                
+                treeGroup.add(branch);
+                
+                const newPos = position.clone().add(direction.clone().multiplyScalar(length));
+                const angle = Math.PI / 6;
+                
+                const dir1 = direction.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), angle);
+                const dir2 = direction.clone().applyAxisAngle(new THREE.Vector3(0, 0, 1), angle);
+                const dir3 = direction.clone().applyAxisAngle(new THREE.Vector3(0, 0, 1), -angle);
+                
+                createBranch(length * 0.7, depth - 1, newPos, dir1);
+                createBranch(length * 0.7, depth - 1, newPos, dir2);
+                createBranch(length * 0.7, depth - 1, newPos, dir3);
+            }
+
+            createBranch(0.8, 6, new THREE.Vector3(0, -2, 0), new THREE.Vector3(0, 1, 0));
+            scene.add(treeGroup);
+
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040, 0.5));
+
+            camera.position.set(0, 0, 5);
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.01;
+                treeGroup.rotation.y = time;
+                treeGroup.scale.setScalar(1 + Math.sin(time * 2) * 0.1);
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function initOceanWaves() {
+            const canvas = document.getElementById('gallery6');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+            const geometry = new THREE.PlaneGeometry(8, 8, 64, 64);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x006994,
+                transparent: true,
+                opacity: 0.8,
+                shininess: 100
+            });
+            const ocean = new THREE.Mesh(geometry, material);
+            ocean.rotation.x = -Math.PI / 2;
+            scene.add(ocean);
+
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(0, 5, 0);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040, 0.3));
+
+            camera.position.set(0, 3, 5);
+            camera.lookAt(0, 0, 0);
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.02;
+                
+                const positions = ocean.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    const x = positions[i];
+                    const z = positions[i + 1];
+                    positions[i + 2] = Math.sin(x * 0.5 + time) * 0.3 + 
+                                      Math.cos(z * 0.7 + time * 1.3) * 0.2;
+                }
+                ocean.geometry.attributes.position.needsUpdate = true;
+                
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function setupScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '-50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.section-title, .section-content, .feature-card, .gallery-item').forEach(el => {
+                observer.observe(el);
+                if (el.classList.contains('feature-card') || el.classList.contains('gallery-item')) {
+                    el.style.transitionDelay = `${Math.random() * 0.3}s`;
                 }
             });
 
-            updateStats();
-            renderer.render(scene, camera);
+            let lastScrollY = window.scrollY;
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                const navbar = document.getElementById('navbar');
+                
+                if (scrollY > 100) {
+                    navbar.classList.add('visible');
+                } else {
+                    navbar.classList.remove('visible');
+                }
+                
+                lastScrollY = scrollY;
+            });
         }
 
-        init();
+        function init() {
+            initHeroScene();
+            animateHero();
+            setTimeout(initGalleryItems, 1000);
+            setupScrollAnimations();
+        }
+
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
